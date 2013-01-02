@@ -9,6 +9,8 @@ import play.api.Play.current
 import java.sql.Clob
 import org.mindrot.jbcrypt.BCrypt
 
+import models._
+
 case class Account(id: Pk[Long], email: String, password: String, name: String, permission: Permission)
 
 object Account {
@@ -30,20 +32,20 @@ object Account {
 
   implicit def permissionToString(permission: Permission): String = {
     permission match {
-      case Administrator => "administrator"
-      case NormalUser => "normal_user"
+      case Administrator => "Administrator"
+      case NormalUser => "NormalUser"
     }
   }
   
   implicit def stringToPermission(permission: String) = {
     permission match {
-      case "administrator" => Administrator
-      case "normal_user" => NormalUser
+      case "Administrator" => Administrator
+      case "NormalUser" => NormalUser
     }
   }
 
   val simple = {
-    get[Pk[Long]]("account.id") ~
+    get[Pk[Long]]("account.account_id") ~
     get[String]("account.email") ~
     get[String]("account.password") ~
     get[String]("account.name") ~
@@ -51,6 +53,8 @@ object Account {
       case id~email~pass~name~perm => Account(id, email, pass, name, perm)
     }
   }
+
+
 
   def authenticate(email: String, password: String): Option[Account] = {
     Logger.info("[Account] Authenticating %s/%s".format(email, password))
@@ -74,7 +78,7 @@ object Account {
 
   def findById(id: Long): Option[Account] = {
     DB.withConnection { implicit connection =>
-      SQL("SELECT * FROM account WHERE id = {id}").on(
+      SQL("SELECT * FROM account WHERE account_id = {id}").on(
         'id -> id
       ).as(simple.singleOpt)
     }
@@ -90,7 +94,7 @@ object Account {
     DB.withConnection { implicit connection =>
       SQL(
         """
-          select count(account.id) = 1 from account
+          select count(account.account_id) = 1 from account
           where account.id = {id} and account.permission = 'administrator'
         """
       ).on(
@@ -101,7 +105,7 @@ object Account {
 
   def create(account: Account): Option[Long] = {
     DB.withConnection { implicit connection =>
-      SQL("INSERT INTO account VALUES (DEFAULT, {email}, {pass}, {name}, {permission})").on(
+      SQL("INSERT INTO account VALUES (DEFAULT, {name}, {email}, {pass}, {permission})").on(
         'email -> account.email,
         'pass -> BCrypt.hashpw(account.password, BCrypt.gensalt()),
         'name -> account.name,
@@ -118,7 +122,7 @@ object Account {
         set email = {email},
         password = {password},
         name = {name}
-        where id = {id}
+        where account_id = {id}
         """
       ).on(
         'email -> account.email,
@@ -132,14 +136,14 @@ object Account {
   implicit object AccountFormat extends Format[Account] {
 
     def writes(a: Account): JsValue = JsObject(Seq(
-      "id" -> JsNumber(a.id.get),
+      "account_id" -> JsNumber(a.id.get),
       "name" -> JsString(a.name),
       "email" -> JsString(a.email),
       "permission" -> JsString(a.permission)
     ))
 
     def reads(json: JsValue): Account = Account(
-      (json \ "id").asOpt[Long].map(id =>
+      (json \ "account_id").asOpt[Long].map(id =>
         Id(id)
       ).getOrElse(NotAssigned),
       (json \ "email").as[String],

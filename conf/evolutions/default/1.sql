@@ -22,12 +22,12 @@ CREATE TABLE comment (
 CREATE TABLE item (
     item_id bigserial NOT NULL,
     title character varying(255) NOT NULL,
-    posted_timestamp date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     posted_by_uid bigint NOT NULL,
     posted_to integer NOT NULL,
     score real DEFAULT 1.0 NOT NULL,
     link character varying(255),
-    body_text text
+    content text,
+    posted_timestamp date DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE moderator (
@@ -102,7 +102,7 @@ ALTER TABLE moderator
 # --- !Downs
 
 drop table if exists moderator;
-drop table if exists sub;
 drop table if exists comment;
 drop table if exists item;
+drop table if exists sub;
 drop table if exists account;
