@@ -1,13 +1,13 @@
-@(message: String)(implicit request: play.api.mvc.Request[AnyContent], user: Option[auth.Account])
-
+@(message: String)(links: Seq[(Item, auth.Account)])(implicit request: play.api.mvc.Request[AnyContent], userOrLogin: Either[Form[Option[auth.Account]], auth.Account], flash: Flash)
+ 
 @main("kn0de") {
 
   <div id="content" class="span8">
-    here be content
-  </div>
-
-  <div id="sidebar" class="span4">
-    here be sidebar
+    <ol>
+      @links.map { case (item, account) =>
+        @views.html.link(item, account)
+      }
+    </ol>
   </div>
 
 }

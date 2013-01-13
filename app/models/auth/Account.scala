@@ -56,16 +56,16 @@ object Account {
 
 
 
-  def authenticate(email: String, password: String): Option[Account] = {
-    Logger.info("[Account] Authenticating %s/%s".format(email, password))
+  def authenticate(name: String, password: String): Option[Account] = {
+    Logger.info("[Account] Authenticating %s/%s".format(name, password))
     Logger.info("[Account] Salt should equal %s".format(BCrypt.hashpw(password, BCrypt.gensalt())))
 
     DB.withConnection { implicit connection =>
-      val salt = SQL("SELECT password FROM account WHERE id = 1").as(scalar[String].single)
+      val salt = SQL("SELECT password FROM account WHERE account_id = 1").as(scalar[String].single)
       Logger.info("[Account] Salt in db equals %s".format(salt))
     }
 
-    findByEmail(email).filter { account => BCrypt.checkpw(password, account.password) }
+    findByName(name).filter { account => BCrypt.checkpw(password, account.password) }
   }
 
   def findByEmail(email: String): Option[Account] = {
@@ -80,6 +80,14 @@ object Account {
     DB.withConnection { implicit connection =>
       SQL("SELECT * FROM account WHERE account_id = {id}").on(
         'id -> id
+      ).as(simple.singleOpt)
+    }
+  }
+
+  def findByName(name: String): Option[Account] = {
+    DB.withConnection { implicit connection =>
+      SQL("SELECT * FROM account WHERE name = {name}").on(
+        'name -> name 
       ).as(simple.singleOpt)
     }
   }

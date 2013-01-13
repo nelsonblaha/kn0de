@@ -1,13 +1,4 @@
 @(form: Form[Option[auth.Account]])(implicit flash: Flash)
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title>Login</title>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-</head>
-<body>
 
   @helper.form(routes.Application.authenticate) {
 
@@ -26,7 +17,7 @@
     }
 
     <p>
-      <input type="email" name="email" placeholder="Email" id="email" value="@form("email").value">
+      <input type="text" name="name" placeholder="name" id="name" value="@form("name").value">
     </p>
     <p>
       <input type="password" name="password" id="password" placeholder="Password">
@@ -36,6 +27,3 @@
     </p>
 
   }
-
-</body>
-</html>

@@ -15,7 +15,7 @@ CREATE TABLE comment (
     posted_by_uid bigint NOT NULL,
     parent_id bigint,
     posted_to integer NOT NULL,
-    score real NOT NULL,
+    score double precision NOT NULL,
     deleted boolean DEFAULT false NOT NULL
 );
 
@@ -24,10 +24,10 @@ CREATE TABLE item (
     title character varying(255) NOT NULL,
     posted_by_uid bigint NOT NULL,
     posted_to integer NOT NULL,
-    score real DEFAULT 1.0 NOT NULL,
+    score double precision DEFAULT 1.0 NOT NULL,
     link character varying(255),
     content text,
-    posted_timestamp date DEFAULT CURRENT_TIMESTAMP NOT NULL
+    posted_timestamp timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE moderator (

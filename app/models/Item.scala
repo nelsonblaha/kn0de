@@ -48,4 +48,41 @@ object Item {
     }
   }
 
+  def totalNumberItems: Long = {
+    DB.withConnection { implicit connection =>
+      SQL("select count(*) from item").as(scalar[Long].single)
+    }
+  }
+
+  def frontpage: Seq[(Item, Account)] = {
+    DB.withConnection { implicit connection =>
+      SQL("""
+        select * from item
+        join account on item.posted_by_uid = account.account_id
+        order by item.score desc
+        limit 20
+        """).as(Item.simple ~ Account.simple map {
+          case item~account => item -> account
+        } *)
+    }
+  }
+
+  def create(item: Item): Option[Long] = {
+    Logger.info("creating new item")
+    DB.withConnection { implicit connection =>
+      SQL("""
+          insert into item values 
+           (default, {title}, {posted_by}, {posted_to},
+           {score}, {link}, {content}, default) returning item_id;
+          """).on(
+          'title -> item.title,
+          'posted_by -> item.postedBy,
+          'posted_to -> item.postedTo,
+          'score -> item.score,
+          'link -> item.link,
+          'content -> item.content
+        ).as(scalar[Long].singleOpt)
+    }
+  }
+
 }

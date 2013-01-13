@@ -40,18 +40,50 @@ object InitialData {
         Sub(NotAssigned, "Misc", "A sub about everything", 1)
       ).foreach(Sub.create)
 
-      Subscription.create(6, 1)
-      Subscription.create(6, 2)
-      Subscription.create(6, 3)
-      Subscription.create(7, 1)
-      Subscription.create(7, 3)
-      Subscription.create(8, 4)
-      Subscription.create(8, 6)
-      Subscription.create(8, 5)
-      Subscription.create(8, 2)
-      Subscription.create(9, 1)
-      Subscription.create(9, 6)
-      Subscription.create(9, 5)
+      Subscription.create(1, 1)
+      Subscription.create(1, 2)
+      Subscription.create(1, 3)
+      Subscription.create(2, 1)
+      Subscription.create(2, 3)
+      Subscription.create(3, 4)
+      Subscription.create(3, 6)
+      Subscription.create(3, 5)
+      Subscription.create(3, 2)
+      Subscription.create(4, 1)
+      Subscription.create(4, 6)
+      Subscription.create(4, 5)
+
+    }
+
+    if(Item.totalNumberItems == 0) {
+
+      Seq(
+        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
+        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date())
+      ).foreach(Item.create)
+
 
     }
 

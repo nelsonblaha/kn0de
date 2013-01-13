@@ -1,4 +1,4 @@
-@(user: Option[auth.Account])
+@(userOrLogin: Either[Form[Option[auth.Account]], auth.Account])(implicit flash: Flash)
 
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
@@ -15,15 +15,11 @@
     </ul>
 
     <p class="navbar-text pull-right">
-      @user.map(_.name).getOrElse("not logged in")
+      @userOrLogin.fold((Any) => "not logged in", _.name)
     </p>
   </div>
 </div>
 
-<div class="row">
-
-  <div class="span4 pull-right">
-    here be user info
-  </div>
-
+<div class="span4 pull-right">
+  @views.html.userInfo(userOrLogin)
 </div>

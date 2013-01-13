@@ -6,6 +6,7 @@ import play.api.mvc.Results._
 import play.api.mvc.RequestHeader
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.json._
 
 import models._
 import models.auth._
@@ -16,19 +17,26 @@ import jp.t2v.lab.play20.auth._
 object Application extends AuthController with LoginLogout {
 
   def index = MaybeAuthenticated { implicit maybeUser => implicit request =>
-    Ok(views.html.index("Your new application is ready."))
+    val frontpageItems = Item.frontpage
+
+    implicit val userOrLogin:Either[Form[Option[Account]], Account] = maybeUser match {
+      case Some(user) => Right(user)
+      case _ => Left(loginForm)
+    }
+
+    Ok(views.html.index("Your new application is ready.")(frontpageItems))
   }
 
   val loginForm = Form {
     mapping("name" -> text, "password" -> text)(Account.authenticate)(_.map(u => (u.name, "")))
-      .verifying("Invalid email or password", result => result.isDefined)
+      .verifying("Invalid name or password", result => result.isDefined)
   }
 
   /**
-   * Login page.
+   * Login form
    */
   def login = Action { implicit request =>
-    Ok(html.login(loginForm))
+    Ok(views.html.login(loginForm))
   }
 
   /**
@@ -44,6 +52,7 @@ object Application extends AuthController with LoginLogout {
    * Handle login form submission.
    */
   def authenticate = Action { implicit request =>
+    Logger.info("authenticating user")
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(html.login(formWithErrors)),
       user => gotoLoginSucceeded(user.get.id.get)
@@ -96,7 +105,11 @@ trait AuthConfigImpl extends AuthConfig {
   /**
    * Where to redirect the user after a successful login.
    */
-  def loginSucceeded(request: RequestHeader): PlainResult = Redirect(routes.Application.index)
+  def loginSucceeded(request: RequestHeader): PlainResult = {
+    Logger.info("login succeeded")
+    val uri = request.session.get("access_uri").getOrElse(routes.Application.index.url.toString)
+    Redirect(uri).withSession(request.session - "access_uri")
+  }
 
   /**
    * Where to redirect the user after logging out
@@ -106,7 +119,10 @@ trait AuthConfigImpl extends AuthConfig {
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
    */
-  def authenticationFailed(request: RequestHeader): PlainResult = Redirect(routes.Application.login)
+  def authenticationFailed(request: RequestHeader): PlainResult = {
+    Logger.info("authentication failed")
+    Redirect(routes.Application.login).withSession("access_uri" -> request.uri)
+  }
 
   /**
    * If authorization failed (usually incorrect password) redirect the user as follows:
