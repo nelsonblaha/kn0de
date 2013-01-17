@@ -2,21 +2,23 @@
 
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
-    <a class="brand" href="@routes.Application.index()">kn0de</a>
-    <ul class="nav">
-      <li class="active"><a href="#">AskScience</a></li>
-      <li><a href="#">kn0de 1</a></li>
-      <li><a href="#">kn0de 2</a></li>
-      <li><a href="#">kn0de 3</a></li>
-      <li><a href="#">kn0de 4</a></li>
-      <li><a href="#">kn0de 5</a></li>
-      <li><a href="#">kn0de 6</a></li>
-      <li><a href="#">kn0de 7</a></li>
-    </ul>
+    <div class="container">
+      <a class="brand" href="@routes.Application.index()">kn0de</a>
+      <ul class="nav">
+        <li class="active"><a href="#">AskScience</a></li>
+        <li><a href="#">kn0de 1</a></li>
+        <li><a href="#">kn0de 2</a></li>
+        <li><a href="#">kn0de 3</a></li>
+        <li><a href="#">kn0de 4</a></li>
+        <li><a href="#">kn0de 5</a></li>
+        <li><a href="#">kn0de 6</a></li>
+        <li><a href="#">kn0de 7</a></li>
+      </ul>
 
-    <p class="navbar-text pull-right">
-      @userOrLogin.fold((Any) => "not logged in", _.name)
-    </p>
+      <p class="navbar-text pull-right">
+        @userOrLogin.fold((Any) => "not logged in", _.name)
+      </p>
+    </div>
   </div>
 </div>
 

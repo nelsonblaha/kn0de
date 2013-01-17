@@ -5,7 +5,7 @@
   <div id="content" class="span8">
     <ol>
       @links.map { case (item, account) =>
-        @views.html.link(item, account)
+        @views.html.link(item, account, true)
       }
     </ol>
   </div>

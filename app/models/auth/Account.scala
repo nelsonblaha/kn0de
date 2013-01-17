@@ -2,6 +2,7 @@ package models.auth
 
 import play.api.db._
 import play.api.libs.json._
+import play.api.libs.json.util._
 import play.api.Logger
 import anorm._
 import anorm.SqlParser._
@@ -141,24 +142,4 @@ object Account {
     }
   }
 
-  implicit object AccountFormat extends Format[Account] {
-
-    def writes(a: Account): JsValue = JsObject(Seq(
-      "account_id" -> JsNumber(a.id.get),
-      "name" -> JsString(a.name),
-      "email" -> JsString(a.email),
-      "permission" -> JsString(a.permission)
-    ))
-
-    def reads(json: JsValue): Account = Account(
-      (json \ "account_id").asOpt[Long].map(id =>
-        Id(id)
-      ).getOrElse(NotAssigned),
-      (json \ "email").as[String],
-      (json \ "password").as[String],
-      (json \ "name").as[String],
-      (json \ "permission").as[String]
-    )
-
-  }
 }

@@ -80,6 +80,8 @@ object Sub {
     }
   }
 
+  def frontpage = Nil
+
 }
 
 object Subscription   {

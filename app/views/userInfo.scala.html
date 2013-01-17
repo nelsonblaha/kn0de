@@ -1,13 +1,15 @@
 @(accountOpt: Either[Form[Option[auth.Account]], auth.Account])(implicit flash: Flash)
 
-@accountOpt match {
+<div class="well">
+  @accountOpt match {
 
-  case Left(form) => {
-    @views.html.login(form)
+    case Left(form) => {
+      @views.html.login(form)
+    }
+
+    case Right(account) => {
+      @account.name is logged in
+    }
+
   }
-
-  case Right(account) => {
-    @account.name is logged in
-  }
-
-}
+</div>

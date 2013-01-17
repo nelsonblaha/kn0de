@@ -9,6 +9,7 @@ import models.auth._
 
 object Accounts extends AuthController {
 
+  /*
   def listAll = IsAdmin { account => _ =>
     val accounts = Account.findAll
 
@@ -34,6 +35,7 @@ object Accounts extends AuthController {
 
     Ok
   }
+  */
 
   def updateAll = TODO
 

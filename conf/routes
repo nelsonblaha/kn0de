@@ -5,6 +5,8 @@
 # Home page
 GET     /                               controllers.Application.index
 
+GET     /k/:sub                         controllers.Subs.index(sub: String)
+
 GET     /login                          controllers.Application.login
 POST    /login                          controllers.Application.authenticate
 

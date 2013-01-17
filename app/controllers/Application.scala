@@ -16,13 +16,8 @@ import jp.t2v.lab.play20.auth._
 
 object Application extends AuthController with LoginLogout {
 
-  def index = MaybeAuthenticated { implicit maybeUser => implicit request =>
+  def index = MaybeAuthenticated { implicit userOrLogin => implicit request =>
     val frontpageItems = Item.frontpage
-
-    implicit val userOrLogin:Either[Form[Option[Account]], Account] = maybeUser match {
-      case Some(user) => Right(user)
-      case _ => Left(loginForm)
-    }
 
     Ok(views.html.index("Your new application is ready.")(frontpageItems))
   }
@@ -157,6 +152,29 @@ trait AuthController extends Controller with Auth with AuthConfigImpl {
 
   protected def IsAuthenticated = authorizedAction((a: Account) => true) _
 
-  protected def MaybeAuthenticated = optionalUserAction(BodyParsers.parse.anyContent) _
+  //protected def MaybeAuthenticated = optionalUserAction(BodyParsers.parse.anyContent) _
+
+  /*
+  private def maybeAuthenticated(u: Option[User])(req: Request[AnyContent])(f: Either[Form[Option[Account]], Account] => Request[AnyContent] => Result): Result =>  {
+    implicit val userOrLogin:Either[Form[Option[Account]], Account] = maybeUser match {
+      case Some(user) => Right(user)
+      case _ => Left(Application.loginForm)
+    }
+
+    optionalUserAction(BodyParsers.parse.anyContent)(f)
+  }
+  */
+
+  private def maybeAuthenticated(f: Either[Form[Option[Account]], Account] => Request[AnyContent] => Result): Action[AnyContent] = {
+    def userOrLogin(req: Request[AnyContent]) = restoreUser(req) match {
+      case Some(user) => Right(user)
+      case _ => Left(Application.loginForm)
+    }
+
+    Action(BodyParsers.parse.anyContent)(req => f(userOrLogin(req))(req))
+  }
+
+  protected def MaybeAuthenticated = maybeAuthenticated _
+      
 
 }
