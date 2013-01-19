@@ -55,16 +55,7 @@ object Item {
   }
 
   def frontpage: Seq[(Item, Account)] = {
-    DB.withConnection { implicit connection =>
-      SQL("""
-        select * from item
-        join account on item.posted_by_uid = account.account_id
-        order by item.score desc
-        limit 20
-        """).as(Item.simple ~ Account.simple map {
-          case item~account => item -> account
-        } *)
-    }
+    Nil
   }
 
   def create(item: Item): Option[Long] = {

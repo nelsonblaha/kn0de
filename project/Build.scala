@@ -12,6 +12,8 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     jdbc,
     anorm,
+    "com.typesafe" %% "slick" % "1.0.0-RC1",
+    "org.slf4j" % "slf4j-nop" % "1.6.4",
     "org.webjars" % "bootstrap" % "2.2.2",
     "org.mindrot" % "jbcrypt" % "0.3m"
   )

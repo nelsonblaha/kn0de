@@ -24,11 +24,11 @@ object InitialData {
     if(Account.findAll.isEmpty)   {
 
       Seq(
-        Account(NotAssigned, "user1@example.com", "password", "user1", NormalUser),
-        Account(NotAssigned, "user2@example.com", "password", "user2", NormalUser),
-        Account(NotAssigned, "user3@example.com", "password", "user3", NormalUser),
-        Account(NotAssigned, "user4@example.com", "password", "user4", NormalUser),
-        Account(NotAssigned, "user5@example.com", "password", "user5", NormalUser)
+        Account(None, "user1@example.com", "password", "user1", NormalUser),
+        Account(None, "user2@example.com", "password", "user2", NormalUser),
+        Account(None, "user3@example.com", "password", "user3", NormalUser),
+        Account(None, "user4@example.com", "password", "user4", NormalUser),
+        Account(None, "user5@example.com", "password", "user5", NormalUser)
       ).foreach(Account.create)
 
       Seq(
