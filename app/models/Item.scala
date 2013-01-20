@@ -8,72 +8,53 @@ import play.api.libs.json.Json
 
 import play.api.Logger
 
-import anorm._
-import anorm.SqlParser._
+import scala.slick.driver.PostgresDriver.simple._
 
-import java.util.Date
+import java.util.Calendar
+import java.sql.Date
 
 import auth._
 
-case class Item(id: Pk[Long] = NotAssigned,
+case class Item(id: Option[Long] = None,
                 title: String,
                 postedBy: Long, // user id
                 postedTo: Long, // sub id
                 score: Double,
                 link: String,
                 content: String,
-                postedAt: Date) // timestamp
+                postedAt: Date = new Date(Calendar.getInstance().getTime().getTime())) // timestamp
   
 object Item {
 
-  val simple = {
-    get[Pk[Long]]("item.item_id") ~
-    get[String]("item.title") ~
-    get[Long]("item.posted_by_uid") ~
-    get[Long]("item.posted_to") ~
-    get[Double]("item.score") ~
-    get[String]("item.link") ~
-    get[String]("item.content") ~
-    get[Date]("item.posted_timestamp") map {
-      case id~title~postedBy~postedTo~score~link~content~postedAt =>
-      Item(id, title, postedBy, postedTo, score, link, content, postedAt)
-    }
+  lazy val database = Database.forDataSource(DB.getDataSource())
+  
+  val ItemTable = new Table[Item]("item") {
+    def id = column[Long]("item_id", O.PrimaryKey, O.AutoInc)
+    def title = column[String]("title")
+    def postedBy = column[Long]("posted_by")
+    def postedTo = column[Long]("posted_to")
+    def score = column[Double]("score")
+    def link = column[String]("link")
+    def content = column[String]("content")
+    def postedAt = column[Date]("posted_at")
+    def * = id.? ~ title ~ postedBy ~ postedTo ~ score ~ link ~ content ~ postedAt <> (Item.apply _, Item.unapply _)
   }
-
-  def findAllBySub(subId: Long): Seq[Item] = {
-    DB.withConnection { implicit connection =>
-      SQL("select * from item where item.sub_id = {sub_id}").on(
-        'sub_id -> subId
-      ).as(Item.simple *)
-    }
+  
+  def findAllBySub(subId: Long): Seq[Item] = database.withSession { implicit db: Session =>
+    Query(ItemTable).filter(i => i.postedTo === subId).list
   }
-
-  def totalNumberItems: Long = {
-    DB.withConnection { implicit connection =>
-      SQL("select count(*) from item").as(scalar[Long].single)
-    }
+  
+  def totalNumberItems: Long = database.withSession { implicit db: Session =>
+    Query(ItemTable.length).first
   }
 
   def frontpage: Seq[(Item, Account)] = {
     Nil
   }
 
-  def create(item: Item): Option[Long] = {
+  def create(item: Item) = database.withSession { implicit db: Session =>
     Logger.info("creating new item")
-    DB.withConnection { implicit connection =>
-      SQL("""
-          insert into item values 
-           (default, {title}, {posted_by}, {posted_to},
-           {score}, {link}, {content}, default) returning item_id;
-          """).on(
-          'title -> item.title,
-          'posted_by -> item.postedBy,
-          'posted_to -> item.postedTo,
-          'score -> item.score,
-          'link -> item.link,
-          'content -> item.content
-        ).as(scalar[Long].singleOpt)
-    }
+    ItemTable.insert(item)
   }
 
 }

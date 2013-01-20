@@ -32,12 +32,12 @@ object InitialData {
       ).foreach(Account.create)
 
       Seq(
-        Sub(NotAssigned, "AskScience", "A sub about science", 1),
-        Sub(NotAssigned, "Politics", "A sub about politics", 1),
-        Sub(NotAssigned, "Technology", "A sub about technology", 1),
-        Sub(NotAssigned, "Funny", "A sub about funny", 1),
-        Sub(NotAssigned, "Stuff", "A sub about stuff", 1),
-        Sub(NotAssigned, "Misc", "A sub about everything", 1)
+        Sub(None, "AskScience", "A sub about science", 1),
+        Sub(None, "Politics", "A sub about politics", 1),
+        Sub(None, "Technology", "A sub about technology", 1),
+        Sub(None, "Funny", "A sub about funny", 1),
+        Sub(None, "Stuff", "A sub about stuff", 1),
+        Sub(None, "Misc", "A sub about everything", 1)
       ).foreach(Sub.create)
 
       Subscription.create(1, 1)
@@ -58,30 +58,30 @@ object InitialData {
     if(Item.totalNumberItems == 0) {
 
       Seq(
-        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date()),
-        Item(NotAssigned, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet", new java.util.Date())
+        Item(None, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 1, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 2, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 3, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 4, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 5, 1, "http://example.com", "Lorem ipsum dolor set amet"),
+        Item(None, "Lorem ipsum", 1, 6, 1, "http://example.com", "Lorem ipsum dolor set amet")
       ).foreach(Item.create)
 
 

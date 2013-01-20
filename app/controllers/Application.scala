@@ -8,6 +8,8 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 
+import scala.reflect.{ClassTag, classTag}
+
 import models._
 import models.auth._
 import views._
@@ -84,7 +86,7 @@ trait AuthConfigImpl extends AuthConfig {
    * A `ClassManifest` is used to retrieve an id from the Cache API.
    * Use something like this:
    */
-  val idManifest: ClassManifest[Id] = classManifest[Id]
+  val idManifest: ClassTag[Id] = classTag[Id]
 
   /**
    * The session timeout in seconds
@@ -143,7 +145,7 @@ trait AuthController extends Controller with Auth with AuthConfigImpl {
   protected def IsModOf(subId: Long) = authorizedAction(isModOf(subId) _) _
 
   private def isModOf(subId: Long)(account: Account): Boolean = 
-    Sub.isMod(subId, account.id.get)
+    Moderator.isMod(subId, account.id.get)
   
   protected def IsAdmin = authorizedAction(isAdmin) _
 
