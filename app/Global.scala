@@ -5,10 +5,15 @@ import models._
 import models.auth._
 import anorm._
 
+import play.api.db._
+import play.api.Play.current
+import scala.slick.driver.PostgresDriver.simple._
+
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     Logger.info("Starting application...")
+    InitialData.dbSetup
     InitialData.insert()
   }
 
@@ -17,6 +22,25 @@ object Global extends GlobalSettings {
 object InitialData {
 
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
+
+  def dbSetup = {
+    Logger.info("Creating DDLs...")
+    lazy val database = Database.forDataSource(DB.getDataSource())
+
+    database.withSession { implicit db: Session => 
+      val ddl = 
+        Account.AccountTable.ddl ++
+        Item.ItemTable.ddl ++
+        Sub.SubTable.ddl ++
+        Subscription.SubscriptionTable.ddl ++
+        Moderator.ModeratorTable.ddl
+
+        Logger.info(ddl.createStatements.reduceLeft(_ + "\n" + _))
+
+      ddl.drop
+      ddl.create
+    }
+  }
 
   def insert() = {
     Logger.info("Inserting initial data...")

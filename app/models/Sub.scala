@@ -13,6 +13,9 @@ import scala.slick.driver.PostgresDriver.simple._
 import java.util.Calendar
 import java.sql.Date
 
+import com.redis._
+import controllers.RedisClients
+
 import auth._
 
 case class Sub(id: Option[Long] = None,
@@ -31,6 +34,7 @@ case class Moderator(accountId: Long,
 object Sub {
   
   lazy val database = Database.forDataSource(DB.getDataSource())
+  lazy val redisClients = RedisClients.clientPool
 
   val SubTable = new Table[Sub]("sub") {
     def id = column[Long]("sub_id", O.PrimaryKey, O.AutoInc)
@@ -40,6 +44,8 @@ object Sub {
     def createdAt = column[Date]("created_timestamp")
     def totalMembers = column[Int]("total_members")
     def * = id.? ~ name ~ description ~ createdBy ~ createdAt ~ totalMembers <> (Sub.apply _, Sub.unapply _)
+    def forInsert = name ~ description ~ createdBy ~ createdAt ~ totalMembers <> 
+      ({ s => Sub(None, s._1, s._2, s._3, s._4, s._5)}, { (s: Sub) => Some(s.name, s.description, s.createdBy, s.createdAt, s.totalMembers) })
   }
 
   def defaults = Seq[Sub]()
@@ -52,9 +58,15 @@ object Sub {
   	Query(SubTable).filter(a => a.name === name).firstOption
   }
 
-  def create(sub: Sub) = database.withSession { implicit db: Session =>
-    Logger.info("creating sub")
-    SubTable.insert(sub)
+  def create(sub: Sub) = {
+    database.withSession { implicit db: Session =>
+      Logger.info("creating sub")
+      val subId = SubTable.forInsert returning SubTable.id insert sub
+      redisClients.withClient { client =>
+        client.sadd(s"subscriptions:${sub.createdBy}", subId)
+        Logger.info(s"subscriptions:${sub.createdBy} = " + client.smembers(s"subscriptions:${sub.createdBy}"))
+      }
+    }
   }
 
   def frontpage(subId: Long): Option[Seq[Item]] = Some(Nil)

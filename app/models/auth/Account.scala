@@ -21,7 +21,7 @@ sealed trait Permission
 case object Administrator extends Permission
 case object NormalUser extends Permission
 
-case class Account(id: Option[Long] = None, 
+case class Account(id: Option[Long] = None,
     			   email: String, 
     			   password: String, 
     			   name: String, 
@@ -43,12 +43,14 @@ object Account {
   )
 
   val AccountTable = new Table[Account]("account") {
-    def id = column[Long]("account_id", O.PrimaryKey, O.AutoInc)
+    def id = column[Long]("account_id", O.AutoInc)
     def email = column[String]("email")
     def password = column[String]("password")
-    def name = column[String]("name")
+    def name = column[String]("name", O.PrimaryKey)
     def permission = column[Permission]("permission")
     def * = id.? ~ email ~ password ~ name ~ permission <> (Account.apply _, Account.unapply _)
+    def forInsert = email ~ password ~ name ~ permission <> 
+      ({ (e, p, n, pm) => Account(None, e, p, n, pm) }, { (a: Account) => Some((a.email, a.password, a.name, a.permission)) })
   }
 
   def authenticate(name: String, password: String): Option[Account] = {
@@ -78,7 +80,8 @@ object Account {
   }
 
   def create(account: Account) = database.withSession { implicit db: Session =>
-    AccountTable.insert(account)
+    Logger.info(AccountTable.insertStatement)
+    AccountTable.forInsert returning AccountTable.id insert account
   }
 
   def update(account: Account): Int = {

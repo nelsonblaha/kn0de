@@ -14,6 +14,7 @@ object ApplicationBuild extends Build {
     anorm,
     "com.typesafe" %% "slick" % "1.0.0-RC2",
     "org.slf4j" % "slf4j-nop" % "1.6.4",
+    "net.debasishg" % "redisclient_2.10" % "2.9",
     "org.webjars" % "bootstrap" % "2.2.2",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.scala-lang" % "scala-compiler" % "2.10.0"
