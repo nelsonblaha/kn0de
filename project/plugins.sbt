@@ -4,5 +4,7 @@ logLevel := Level.Warn
 // The Typesafe repository 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
+resolvers += "scala-tools.org" at "https://oss.sonatype.org/content/repositories/releases"
+
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("play" % "sbt-plugin" % "2.1-RC2")
+addSbtPlugin("play" % "sbt-plugin" % "2.1.0")

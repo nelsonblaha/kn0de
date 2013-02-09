@@ -31,23 +31,15 @@ object Account {
   
   lazy val database = Database.forDataSource(DB.getDataSource())
 
-  implicit def permissionToString(permission: Permission): String = {
-    permission match {
+  implicit val permissionTypeMapper = MappedTypeMapper.base[Permission, String](
+    p => p match {
       case Administrator => "Administrator"
       case NormalUser => "NormalUser"
-    }
-  }
-  
-  implicit def stringToPermission(permission: String): Permission = {
-    permission match {
+    },
+    s => s match {
       case "Administrator" => Administrator
       case "NormalUser" => NormalUser
     }
-  }
-
-  implicit val permissionTypeMapper = MappedTypeMapper.base[Permission, String](
-    p => p,
-    s => s
   )
 
   val AccountTable = new Table[Account]("account") {

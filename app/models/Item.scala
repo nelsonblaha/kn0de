@@ -20,7 +20,7 @@ case class Item(id: Option[Long] = None,
                 postedBy: Long, // user id
                 postedTo: Long, // sub id
                 score: Double,
-                link: String,
+                link: Option[String],
                 content: String,
                 postedAt: Date = new Date(Calendar.getInstance().getTime().getTime())) // timestamp
   
@@ -31,13 +31,16 @@ object Item {
   val ItemTable = new Table[Item]("item") {
     def id = column[Long]("item_id", O.PrimaryKey, O.AutoInc)
     def title = column[String]("title")
-    def postedBy = column[Long]("posted_by")
+    def postedBy = column[Long]("posted_by_uid")
     def postedTo = column[Long]("posted_to")
     def score = column[Double]("score")
     def link = column[String]("link")
     def content = column[String]("content")
-    def postedAt = column[Date]("posted_at")
-    def * = id.? ~ title ~ postedBy ~ postedTo ~ score ~ link ~ content ~ postedAt <> (Item.apply _, Item.unapply _)
+    def postedAt = column[Date]("posted_timestamp")
+    def * = id.? ~ title ~ postedBy ~ postedTo ~ score ~ link.? ~ content ~ postedAt <> (Item.apply _, Item.unapply _)
+    def forInsert = title ~ postedBy ~ postedTo ~ score ~ link.? ~ content ~ postedAt <> 
+      ({ t => Item(None, t._1, t._2, t._3, t._4, t._5, t._6, t._7)}, 
+      { (i: Item) => Some((i.title, i.postedBy, i.postedTo, i.score, i.link, i.content, i.postedAt))})
   }
   
   def findAllBySub(subId: Long): Seq[Item] = database.withSession { implicit db: Session =>
@@ -48,13 +51,9 @@ object Item {
     Query(ItemTable.length).first
   }
 
-  def frontpage: Seq[(Item, Account)] = {
-    Nil
-  }
-
-  def create(item: Item) = database.withSession { implicit db: Session =>
+  def create(item: Item): Option[Long] = database.withSession { implicit db: Session =>
     Logger.info("creating new item")
-    ItemTable.insert(item)
+    ItemTable.forInsert returning ItemTable.id.? insert item
   }
 
 }

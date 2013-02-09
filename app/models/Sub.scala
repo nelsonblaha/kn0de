@@ -37,7 +37,7 @@ object Sub {
     def name = column[String]("name")
     def description = column[String]("description")
     def createdBy = column[Long]("created_by")
-    def createdAt = column[Date]("created_at")
+    def createdAt = column[Date]("created_timestamp")
     def totalMembers = column[Int]("total_members")
     def * = id.? ~ name ~ description ~ createdBy ~ createdAt ~ totalMembers <> (Sub.apply _, Sub.unapply _)
   }
@@ -57,7 +57,7 @@ object Sub {
     SubTable.insert(sub)
   }
 
-  def frontpage = Nil
+  def frontpage(subId: Long): Option[Seq[Item]] = Some(Nil)
 
 }
 

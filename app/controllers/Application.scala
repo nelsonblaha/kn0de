@@ -19,7 +19,7 @@ import jp.t2v.lab.play20.auth._
 object Application extends AuthController with LoginLogout {
 
   def index = MaybeAuthenticated { implicit userOrLogin => implicit request =>
-    val frontpageItems = Item.frontpage
+    val frontpageItems = Nil
 
     Ok(views.html.index("Your new application is ready.")(frontpageItems))
   }

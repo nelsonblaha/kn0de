@@ -1,29 +1,30 @@
-@(form: Form[Option[auth.Account]])(implicit flash: Flash)
+@(form: Form[Option[auth.Account]], body: (Html) => Html = {x => x}, footer: (Html) => Html = {x => x})(implicit flash: Flash)
 
   @helper.form(routes.Application.authenticate) {
 
-    <h1>Sign in</h1>
+    @body {
+      @form.globalError.map { error =>
+        <p class="error">
+          @error.message
+        </p>
+      }
 
-    @form.globalError.map { error =>
-      <p class="error">
-        @error.message
+      @flash.get("success").map { message =>
+        <p class="success">
+          @message
+        </p>
+      }
+
+      <p>
+        <input type="text" name="name" placeholder="name" id="name" value="@form("name").value">
+      </p>
+      <p>
+        <input type="password" name="password" id="password" placeholder="Password">
       </p>
     }
 
-    @flash.get("success").map { message =>
-      <p class="success">
-        @message
-      </p>
+    @footer {
+      <button class="btn btn-primary" type="submit" id="loginbutton">Login</button>
     }
-
-    <p>
-      <input type="text" name="name" placeholder="name" id="name" value="@form("name").value">
-    </p>
-    <p>
-      <input type="password" name="password" id="password" placeholder="Password">
-    </p>
-    <p>
-      <button type="submit" id="loginbutton">Login</button>
-    </p>
 
   }
