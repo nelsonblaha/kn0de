@@ -16,17 +16,12 @@ import views._
 
 import jp.t2v.lab.play20.auth._
 
-object Application extends AuthController with LoginLogout {
+object Application extends AuthController with LoginLogout with Header {
 
-  def index = MaybeAuthenticated { implicit userOrLogin => implicit request =>
+  def index = MaybeAuthenticated { implicit maybeUser => implicit request =>
     val frontpageItems = Nil
 
     Ok(views.html.index("Your new application is ready.")(frontpageItems))
-  }
-
-  val loginForm = Form {
-    mapping("name" -> text, "password" -> text)(Account.authenticate)(_.map(u => (u.name, "")))
-      .verifying("Invalid name or password", result => result.isDefined)
   }
 
   /**
@@ -167,13 +162,13 @@ trait AuthController extends Controller with Auth with AuthConfigImpl {
   }
   */
 
-  private def maybeAuthenticated(f: Either[Form[Option[Account]], Account] => Request[AnyContent] => Result): Action[AnyContent] = {
+  private def maybeAuthenticated(f: Option[Account] => Request[AnyContent] => Result): Action[AnyContent] = {
     def userOrLogin(req: Request[AnyContent]) = restoreUser(req) match {
       case Some(user) => Right(user)
       case _ => Left(Application.loginForm)
     }
 
-    Action(BodyParsers.parse.anyContent)(req => f(userOrLogin(req))(req))
+    Action(BodyParsers.parse.anyContent)(req => f(restoreUser(req))(req))
   }
 
   protected def MaybeAuthenticated = maybeAuthenticated _

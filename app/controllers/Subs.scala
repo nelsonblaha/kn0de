@@ -12,7 +12,7 @@ import models._
 import models.auth._
 import views._
 
-object Subs extends AuthController {
+object Subs extends AuthController with Header {
 
   val itemForm = Form(
     mapping(

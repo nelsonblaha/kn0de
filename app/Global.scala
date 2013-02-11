@@ -32,7 +32,7 @@ object InitialData {
         Account.AccountTable.ddl ++
         Item.ItemTable.ddl ++
         Sub.SubTable.ddl ++
-        Subscription.SubscriptionTable.ddl ++
+        //Subscription.SubscriptionTable.ddl ++
         Moderator.ModeratorTable.ddl
 
         Logger.info(ddl.createStatements.reduceLeft(_ + "\n" + _))
@@ -48,6 +48,7 @@ object InitialData {
     if(Account.findAll.isEmpty)   {
 
       Seq(
+        Account(None, "default@kn0de.com", "password", "default", NormalUser),
         Account(None, "user1@example.com", "password", "user1", NormalUser),
         Account(None, "user2@example.com", "password", "user2", NormalUser),
         Account(None, "user3@example.com", "password", "user3", NormalUser),
@@ -56,26 +57,29 @@ object InitialData {
       ).foreach(Account.create)
 
       Seq(
-        Sub(None, "AskScience", "A sub about science", 1),
-        Sub(None, "Politics", "A sub about politics", 1),
-        Sub(None, "Technology", "A sub about technology", 1),
-        Sub(None, "Funny", "A sub about funny", 1),
-        Sub(None, "Stuff", "A sub about stuff", 1),
-        Sub(None, "Misc", "A sub about everything", 1)
+        Sub(None, "AskScience", "A sub about science", 2),
+        Sub(None, "Politics", "A sub about politics", 2),
+        Sub(None, "Technology", "A sub about technology", 2),
+        Sub(None, "Funny", "A sub about funny", 2),
+        Sub(None, "Stuff", "A sub about stuff", 2),
+        Sub(None, "Misc", "A sub about everything", 2)
       ).foreach(Sub.create)
 
-      Subscription.create(1, 1)
-      Subscription.create(1, 2)
-      Subscription.create(1, 3)
-      Subscription.create(2, 1)
-      Subscription.create(2, 3)
-      Subscription.create(3, 4)
-      Subscription.create(3, 6)
-      Subscription.create(3, 5)
-      Subscription.create(3, 2)
-      Subscription.create(4, 1)
-      Subscription.create(4, 6)
-      Subscription.create(4, 5)
+      Subscription.create(1, "AskScience")
+      Subscription.create(1, "Politics")
+      Subscription.create(1, "Technology")
+      Subscription.create(1, "Funny")
+      Subscription.create(1, "Stuff")
+      Subscription.create(1, "Misc")
+      Subscription.create(2, "AskScience")
+      Subscription.create(2, "Technology")
+      Subscription.create(3, "Funny")
+      Subscription.create(3, "AskScience")
+      Subscription.create(3, "Stuff")
+      Subscription.create(3, "Misc")
+      Subscription.create(4, "AskScience")
+      Subscription.create(4, "Politics")
+      Subscription.create(4, "Stuff")
 
     }
 

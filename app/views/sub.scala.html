@@ -1,4 +1,4 @@
-@(sub: Sub, items: Seq[Item])(implicit request: play.api.mvc.Request[AnyContent], userOrLogin: Either[Form[Option[auth.Account]], auth.Account], flash: Flash)
+@(sub: Sub, items: Seq[Item])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
 
 @main(sub.name)   {
   <div class="row">

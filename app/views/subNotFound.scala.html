@@ -1,3 +1,7 @@
-@(subName: String)(implicit request: play.api.mvc.Request[AnyContent], userOrLogin: Either[Form[Option[auth.Account]], auth.Account], flash: Flash)
+@(subName: String)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
 
-Sub not found!
+@main("kn0de") {
+
+  Sub not found!
+
+}

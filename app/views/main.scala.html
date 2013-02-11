@@ -1,4 +1,4 @@
-@(title: String)(content: Html)(implicit request: play.api.mvc.Request[AnyContent], userOrLogin: Either[Form[Option[auth.Account]], auth.Account], flash: Flash)
+@(title: String)(content: Html)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
 
 @* check for the pjax header *@
 @if(request.headers.get("X-PJAX").isDefined) {
@@ -46,7 +46,7 @@
 
       <div class="container">
 
-        @views.html.topbar(userOrLogin)
+        @views.html.topbar(userInfo, flash)
 
         <div id="pjaxable" class="row">
 

@@ -81,7 +81,7 @@ object Account {
 
   def create(account: Account) = database.withSession { implicit db: Session =>
     Logger.info(AccountTable.insertStatement)
-    AccountTable.forInsert returning AccountTable.id insert account
+    AccountTable.forInsert returning AccountTable.id insert account.copy(password = BCrypt.hashpw(account.password, BCrypt.gensalt()))
   }
 
   def update(account: Account): Int = {

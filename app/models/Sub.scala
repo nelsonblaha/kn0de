@@ -25,9 +25,6 @@ case class Sub(id: Option[Long] = None,
                createdAt: Date = new java.sql.Date(Calendar.getInstance().getTime().getTime()),
                totalMembers: Int = 0)
 
-case class Subscription(accountId: Long,
-                        subId: Long)
-                        
 case class Moderator(accountId: Long,
 					 subId: Long)                       
 
@@ -48,8 +45,6 @@ object Sub {
       ({ s => Sub(None, s._1, s._2, s._3, s._4, s._5)}, { (s: Sub) => Some(s.name, s.description, s.createdBy, s.createdAt, s.totalMembers) })
   }
 
-  def defaults = Seq[Sub]()
-
   def findById(id: Long): Option[Sub] = database.withSession { implicit db: Session =>
   	Query(SubTable).filter(a => a.id === id).firstOption
   }
@@ -61,11 +56,8 @@ object Sub {
   def create(sub: Sub) = {
     database.withSession { implicit db: Session =>
       Logger.info("creating sub")
-      val subId = SubTable.forInsert returning SubTable.id insert sub
-      redisClients.withClient { client =>
-        client.sadd(s"subscriptions:${sub.createdBy}", subId)
-        Logger.info(s"subscriptions:${sub.createdBy} = " + client.smembers(s"subscriptions:${sub.createdBy}"))
-      }
+      SubTable.forInsert returning SubTable.id insert sub
+      Subscription.create(sub.createdBy, sub.name)
     }
   }
 
@@ -73,23 +65,28 @@ object Sub {
 
 }
 
+case class Subscription(name: String)
+
 object Subscription   {
   
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  lazy val redisClients = RedisClients.clientPool
 
-  val SubscriptionTable = new Table[Subscription]("subscription") {
-    def accountId = column[Long]("account_id")
-    def subId = column[Long]("sub_id")
-    def * = accountId ~ subId <> (Subscription.apply _, Subscription.unapply _)
+  def findByAccount(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
+    val userId = maybeUser.flatMap { _.id } getOrElse -1
+    client.smembers(s"subscriptions:$userId") map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]() 
   }
 
-  def findByAccount(accountId: Long): Seq[Subscription] = database.withSession { implicit db: Session =>
-    Query(SubscriptionTable).filter(s => s.accountId === accountId).list
+  def defaults(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
+    val userId = maybeUser.flatMap { _.id } getOrElse -1
+    client.sdiff("subscriptions:1", s"subscriptions:$userId")
+      .map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]()
   }
 
-  def create(accountId: Long, subId: Long) = database.withSession { implicit db: Session =>
-    Logger.info("creating subscription for " + accountId + " and " + subId)
-    SubscriptionTable.insert(Subscription(accountId, subId))
+  def create(accountId: Long, subName: String) = {
+    Logger.info("creating subscription for " + accountId + " and " + subName)
+    redisClients.withClient { client =>
+      client.sadd(s"subscriptions:${accountId}", subName)
+    }
   }
 
 }

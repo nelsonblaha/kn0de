@@ -1,4 +1,4 @@
-@(userOrLogin: Either[Form[Option[auth.Account]], auth.Account])(implicit flash: Flash)
+@(implicit userInfo: UserInfo, flash: Flash)
 
 @formBody(html: Html) = { <div class="modal-body">@html</div> }
 @formFooter(html: Html) = { <div class="modal-footer">@html</div> }
@@ -19,24 +19,21 @@
       </ul>
 
       <p class="navbar-text pull-right">
-        @userOrLogin.fold( 
-          loginForm => <a href="#login-modal" data-toggle="modal">login</a>, 
-          user => user.name
-        )
+        @{userInfo.maybeUser match {
+          case Some(user) => user.name
+          case None => <a href="#login-modal" data-toggle="modal">login</a>
+        }}
       </p>
     </div>
   </div>
 </div>
 
-@userOrLogin match { 
-  case Left(loginForm) => {
+@if(userInfo.maybeUser.isEmpty) { 
     <div id="login-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
         <h3 id="loginModalHeader">Login</h3>
       </div>
-      @{views.html.login(loginForm, formBody, formFooter)}
+      @{views.html.login(userInfo.loginForm, formBody, formFooter)}
     </div>
-  }
-  case _ => {}
 }
