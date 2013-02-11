@@ -27,14 +27,14 @@ object Subs extends AuthController with Header {
       
   
   def index(subName: String) = MaybeAuthenticated { implicit maybeUser => implicit request =>
-    Sub.findByName(subName) match { 
-      case Some(sub) =>
-        Ok(views.html.sub(
-          sub,
-          Sub.frontpage(sub.id.get).get
-        ))
-      case None => Ok(views.html.subNotFound(subName))
-    }
+    (for {
+      sub <- (Sub.findByName(subName)    toRight "Could not find sub with that name").right
+      id <- (sub.id                      toRight "No ID set for that sub").right
+      frontpage <- (Sub.frontpage(id)    toRight "No frontpage items found for sub").right
+    } yield Ok(views.html.sub(sub, frontpage))) fold (
+      error => BadRequest(error),
+      ok => ok
+    )
   }
 
   def createItem = MaybeAuthenticated { implicit maybeUser => implicit request =>

@@ -1,6 +1,6 @@
 @(sub: Sub, items: Seq[Item])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
 
-@main(sub.name)   {
+@main(title = sub.name, currentSub = Some(sub.name))   {
   <div class="row">
     <h1>
       @sub.name

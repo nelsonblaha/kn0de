@@ -1,6 +1,6 @@
 @(message: String)(links: Seq[(Item, auth.Account)])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
  
-@main("kn0de") {
+@main(title = "kn0de", currentSub = None) {
 
   <div id="content" class="span8">
     <ol>

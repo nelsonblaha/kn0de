@@ -1,4 +1,4 @@
-@(implicit userInfo: UserInfo, flash: Flash)
+@(currentSub: Option[String])(implicit userInfo: UserInfo, flash: Flash)
 
 @formBody(html: Html) = { <div class="modal-body">@html</div> }
 @formFooter(html: Html) = { <div class="modal-footer">@html</div> }
@@ -8,14 +8,19 @@
     <div class="container">
       <a class="brand" href="@routes.Application.index()">kn0de</a>
       <ul class="nav">
-        <li class="active"><a href="#">AskScience</a></li>
-        <li><a href="#">kn0de 1</a></li>
-        <li><a href="#">kn0de 2</a></li>
-        <li><a href="#">kn0de 3</a></li>
-        <li><a href="#">kn0de 4</a></li>
-        <li><a href="#">kn0de 5</a></li>
-        <li><a href="#">kn0de 6</a></li>
-        <li><a href="#">kn0de 7</a></li>
+        @userInfo.subscriptions.map { sub =>
+          <li @if(currentSub.map(_ == sub.name).getOrElse(false)) { class="active" }>
+            <a href="@routes.Subs.index(sub.name)">@sub.name</a>
+          </li>
+        }
+        @if(userInfo.subscriptions.size > 0 && userInfo.defaults.size > 0) {
+          <li class="divider divider-vertical"></li>
+        }
+        @userInfo.defaults.map { sub =>
+          <li @if(currentSub.map(_ == sub.name).getOrElse(false)) { class="active" }>
+            <a href="@routes.Subs.index(sub.name)">@sub.name</a>
+          </li>
+        }
       </ul>
 
       <p class="navbar-text pull-right">
@@ -27,6 +32,8 @@
     </div>
   </div>
 </div>
+
+currentSub = @currentSub.getOrElse("no current sub")
 
 @if(userInfo.maybeUser.isEmpty) { 
     <div id="login-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
