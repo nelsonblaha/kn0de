@@ -13,19 +13,20 @@ object RedisClients {
 
   Logger.info("Using redis url: " + maybeRedisURL)
 
-  val (redisHost, redisPort) = maybeRedisURL match {
+  val (redisHost, redisPort, redisSecret) = maybeRedisURL match {
     case Some(redisURL) => {
       val redisURI = new java.net.URI(redisURL)
-      (redisURI.getHost(), redisURI.getPort())
+      (redisURI.getHost(), redisURI.getPort(), Some(redisURI.getUserInfo().split(":")(1)))
     }
     case None => {
       (Play.configuration.getString("redis.host").getOrElse("localhost"),
-       Play.configuration.getInt("redis.port").getOrElse(6379))
+       Play.configuration.getInt("redis.port").getOrElse(6379),
+       None)
     }
   }
 
   Logger.info(s"Redis host: $redisHost, Redis port: $redisPort")
 
-  val clientPool = new RedisClientPool(redisHost, redisPort)
+  val clientPool = new RedisClientPool(redisHost, redisPort, secret = redisSecret)
 
 }
