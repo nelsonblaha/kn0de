@@ -37,7 +37,8 @@ object InitialData {
 
         Logger.info(ddl.createStatements.reduceLeft(_ + "\n" + _))
 
-      ddl.drop
+      if(MTable.getTables.list.exists(t => t.name.name = "account"))
+        ddl.drop
       ddl.create
     }
   }
