@@ -9,6 +9,8 @@ import play.api.db._
 import play.api.Play.current
 import scala.slick.driver.PostgresDriver.simple._
 
+import scala.slick.jdbc.meta.{ MTable, MQName }
+
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
@@ -37,7 +39,7 @@ object InitialData {
 
         Logger.info(ddl.createStatements.reduceLeft(_ + "\n" + _))
 
-      if(MTable.getTables.list.exists(t => t.name.name = "account"))
+      if(MTable.getTables.list.exists(t => t.name.name == "account"))
         ddl.drop
       ddl.create
     }
