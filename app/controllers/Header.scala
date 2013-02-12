@@ -22,11 +22,20 @@ case class UserInfo(
 
 trait Header {
 
-  implicit def withUserInfo(implicit maybeUser: Option[Account]): UserInfo = {
+  implicit def withUserInfoOptionalUser(implicit maybeUser: Option[Account]): UserInfo = {
     UserInfo(
       maybeUser,
       Subscription.defaults(maybeUser),
       Subscription.findByAccount(maybeUser),
+      loginForm
+    )
+  }
+
+  implicit def withUserInfo(implicit user: Account): UserInfo = {
+    UserInfo(
+      Some(user),
+      Subscription.defaults(Some(user)),
+      Subscription.findByAccount(Some(user)),
       loginForm
     )
   }

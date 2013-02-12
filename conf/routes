@@ -10,6 +10,10 @@ GET     /k/:sub                         controllers.Subs.index(sub: String)
 GET     /login                          controllers.Application.login
 POST    /login                          controllers.Application.authenticate
 
+GET     /k/:sub/item                    controllers.Subs.newItem(sub: String)
+POST    /k/:sub/item                    controllers.Subs.createItem(sub: String)
+
+GET     /k/:sub/item/:id                controllers.Subs.singleItem(sub: String, id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)

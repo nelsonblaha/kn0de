@@ -19,7 +19,6 @@ case class Item(id: Option[Long] = None,
                 title: String,
                 postedBy: Long, // user id
                 postedTo: Long, // sub id
-                score: Double,
                 link: Option[String],
                 content: String,
                 postedAt: Date = new Date(Calendar.getInstance().getTime().getTime())) // timestamp
@@ -27,20 +26,19 @@ case class Item(id: Option[Long] = None,
 object Item {
 
   lazy val database = Database.forDataSource(DB.getDataSource())
-  
+
   val ItemTable = new Table[Item]("item") {
     def id = column[Long]("item_id", O.PrimaryKey, O.AutoInc)
     def title = column[String]("title")
     def postedBy = column[Long]("posted_by_uid")
     def postedTo = column[Long]("posted_to")
-    def score = column[Double]("score")
     def link = column[String]("link")
     def content = column[String]("content")
     def postedAt = column[Date]("posted_timestamp")
-    def * = id.? ~ title ~ postedBy ~ postedTo ~ score ~ link.? ~ content ~ postedAt <> (Item.apply _, Item.unapply _)
-    def forInsert = title ~ postedBy ~ postedTo ~ score ~ link.? ~ content ~ postedAt <> 
-      ({ t => Item(None, t._1, t._2, t._3, t._4, t._5, t._6, t._7)}, 
-      { (i: Item) => Some((i.title, i.postedBy, i.postedTo, i.score, i.link, i.content, i.postedAt))})
+    def * = id.? ~ title ~ postedBy ~ postedTo ~ link.? ~ content ~ postedAt <> (Item.apply _, Item.unapply _)
+    def forInsert = title ~ postedBy ~ postedTo ~ link.? ~ content ~ postedAt <> 
+      ({ t => Item(None, t._1, t._2, t._3, t._4, t._5, t._6)}, 
+      { (i: Item) => Some((i.title, i.postedBy, i.postedTo, i.link, i.content, i.postedAt))})
   }
   
   def findAllBySub(subId: Long): Seq[Item] = database.withSession { implicit db: Session =>
@@ -55,5 +53,10 @@ object Item {
     Logger.info("creating new item")
     ItemTable.forInsert returning ItemTable.id.? insert item
   }
+
+  def findById(itemId: Long): Option[Item] = database.withSession { implicit db: Session =>
+    Query(ItemTable).filter(i => i.id === itemId).firstOption
+  }
+
 
 }

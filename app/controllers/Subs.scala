@@ -15,16 +15,12 @@ import views._
 object Subs extends AuthController with Header {
 
   val itemForm = Form(
-    mapping(
+    tuple(
       "title" -> text,
-      "postedBy" -> longNumber,
-      "postedTo" -> longNumber,
       "link" -> optional(text),
       "content" -> text
-    )((title, postedBy, postedTo, link, content) => Item(None, title, postedBy, postedTo, 0, link, content))
-     ((item: Item) => Some((item.title, item.postedBy, item.postedTo, item.link, item.content)))
+    )
   )
-      
   
   def index(subName: String) = MaybeAuthenticated { implicit maybeUser => implicit request =>
     (for {
@@ -37,16 +33,43 @@ object Subs extends AuthController with Header {
     )
   }
 
-  def createItem = MaybeAuthenticated { implicit maybeUser => implicit request =>
+  def newItem(subName: String) = IsAuthenticated { implicit user => implicit request =>
     (for {
-      item <- (itemForm.bindFromRequest.value  toRight "Could not bind form to value").right
-      subId <- (Item.create(item)              toRight "Could not get unique ID for new item").right
-      sub <- (Sub.findById(subId)              toRight "Could not find sub by ID: " + subId).right
-      items <- (Sub.frontpage(subId)           toRight "Could not get frontpage items for sub by ID: " + subId).right
-    } yield Ok(views.html.sub(sub, items))) fold (
+      sub <- (Sub.findByName(subName)     toRight "Could not find sub with that name").right
+    } yield Ok(views.html.newItem(sub, itemForm))) fold (
       error => BadRequest(error),
       ok => ok
     )
+  }
+
+  def createItem(subName: String) = IsAuthenticated { implicit user => implicit request =>
+    (for {
+      (title, link, content) <- (itemForm.bindFromRequest.value  toRight "Could not bind form to value").right
+      sub <- (Sub.findByName(subName)              toRight "Could not find sub by name: " + subName).right
+      subId <- (sub.id                             toRight "No sub ID").right
+      userId <- (user.id                           toRight "No User ID").right
+    } yield (sub, Item(None, title, userId, subId, link, content))) fold (
+      error => BadRequest(error),
+      subAndItem => subAndItem match { case (sub, item) => (for {
+          itemId <- (Item.create(item)                 toRight "Could not get unique ID for new item").right
+          postedBy <- (Account.findById(item.postedBy) toRight "Could not find user").right
+      } yield Ok(views.html.item(sub, item, postedBy))) fold (
+          error => BadRequest(error),
+          ok => ok
+        )
+      }
+    )
+  }
+
+  def singleItem(subName: String, itemId: Long) = MaybeAuthenticated { implicit maybeUser => implicit request =>
+    (for {
+      sub <-      (Sub.findByName(subName)            toRight "Could not find sub").right
+      item <-     (Item.findById(itemId)              toRight "Could not find item").right
+      postedBy <- (Account.findById(item.postedBy)    toRight "Could not find poster").right
+    } yield Ok(views.html.item(sub, item, postedBy))) fold (
+        error => BadRequest(error),
+        ok => ok
+      )
   }
 
 

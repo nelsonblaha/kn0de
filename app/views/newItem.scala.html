@@ -1,0 +1,21 @@
+@(sub: Sub, newItemForm: Form[(String, Option[String], String)])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
+
+@import helper.twitterBootstrap._
+
+@main(title = sub.name, currentSub = Some(sub.name))   {
+
+  @helper.form(action = routes.Subs.createItem(sub.name)) {
+    
+    @helper.inputText(newItemForm("title"))
+
+    @helper.inputText(newItemForm("link"))
+
+    @helper.inputText(newItemForm("content"))
+
+    <button class="btn btn-primary" type="submit" id="submitbutton">Submit</button>
+    
+
+  }
+
+}
+

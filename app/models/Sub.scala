@@ -61,7 +61,9 @@ object Sub {
     }
   }
 
-  def frontpage(subId: Long): Option[Seq[Item]] = Some(Nil)
+  def frontpage(subId: Long): Option[Seq[Item]] = database.withSession { implicit db: Session =>
+    Some(Query(Item.ItemTable).filter(s => s.postedTo === subId).list)
+  }
 
 }
 
