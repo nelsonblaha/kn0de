@@ -18,6 +18,7 @@ object ApplicationBuild extends Build {
     "org.slf4j" % "slf4j-nop" % "1.6.4",
     "net.debasishg" % "redisclient_2.10" % "2.9",
     "org.webjars" % "bootstrap" % "2.2.2",
+    "jp.t2v" %% "play20.auth" % "0.5",
     "org.mindrot" % "jbcrypt" % "0.3m",
     "org.scala-lang" % "scala-compiler" % "2.10.0"
   )
@@ -26,7 +27,8 @@ object ApplicationBuild extends Build {
     scalaVersion := "2.10.0",
     resolvers += "t2v.jp repo" at "http://www.t2v.jp/maven-repo/",
     resolvers += "jbcrypt repo" at "http://mvnrepository.com/"
-  )
-//  ).dependsOn(authModule)
+  ).dependsOn(play21auth)
+
+  lazy val play21auth = uri("https://github.com/ryantanner/play20-auth.git#play21")
 
 }
