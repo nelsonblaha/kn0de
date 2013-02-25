@@ -25,7 +25,7 @@ case class Item(id: Option[Long] = None,
   
 object Item {
 
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  def database = Database.forDataSource(DB.getDataSource())
 
   val ItemTable = new Table[Item]("item") {
     def id = column[Long]("item_id", O.PrimaryKey, O.AutoInc)

@@ -28,9 +28,9 @@ case class Sub(id: Option[Long] = None,
 case class Moderator(accountId: Long,
 					 subId: Long)                       
 
-object Sub {
+object Sub extends RedisKeys {
   
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  def database = Database.forDataSource(DB.getDataSource())
   lazy val redisClients = RedisClients.clientPool
 
   val SubTable = new Table[Sub]("sub") {
@@ -54,40 +54,71 @@ object Sub {
   }
 
   def create(sub: Sub) = {
-    database.withSession { implicit db: Session =>
+    // Create the sub in psql
+    implicit val subId = database.withSession { implicit db: Session =>
       Logger.info("creating sub")
       SubTable.forInsert returning SubTable.id insert sub
-      Subscription.create(sub.createdBy, sub.name)
     }
-  }
 
-  def frontpage(subId: Long): Option[Seq[Item]] = database.withSession { implicit db: Session =>
-    Some(Query(Item.ItemTable).filter(s => s.postedTo === subId).list)
+    redisClients.withClient { client =>
+      // Set up the nextItemId counter for the new sub
+      client.set(nextItemId,0)
+
+      // Set the sub hash
+      client.hmset(subHash, Map(
+        SubHash.subName -> sub.name,
+        SubHash.subDescription -> sub.description,
+        SubHash.createdBy -> sub.createdBy,
+        SubHash.createdAt -> sub.createdAt
+      ))
+    }
+
+    // Create the initial subscription for the user creating the sub
+    Subscription.create(sub.createdBy, subId, sub.name)
+  }
+ 
+  def frontpage(subId: Long): Option[Seq[(Item, Account)]] = database.withSession { implicit db: Session =>
+    //Some(Query(Item.ItemTable).filter(s => s.postedTo === subId).list)
+    Sub.findById(subId) match {
+      case Some(sub) => Some((for {
+          i <- Item.ItemTable if (i.postedTo === subId)
+          a <- Account.AccountTable if (i.postedBy === a.id)
+        } yield (i, a)).list)
+      case _ => None
+    }
   }
 
 }
 
 case class Subscription(name: String)
 
-object Subscription   {
+object Subscription extends RedisKeys  {
   
   lazy val redisClients = RedisClients.clientPool
 
   def findByAccount(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
-    val userId = maybeUser.flatMap { _.id } getOrElse -1
-    client.smembers(s"subscriptions:$userId") map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]() 
+    implicit val userId = maybeUser.flatMap { _.id } getOrElse -1L
+    client.smembers(subscriptionsForUser) map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]() 
   }
 
   def defaults(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
+    // Deprecated
+    // Going to replace this with setting defaults at user-creation rather than dynamically
+    // Auto-sub users to defaults, allow them to unsub later
     val userId = maybeUser.flatMap { _.id } getOrElse -1
     client.sdiff("subscriptions:1", s"subscriptions:$userId")
       .map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]()
   }
 
-  def create(accountId: Long, subName: String) = {
-    Logger.info("creating subscription for " + accountId + " and " + subName)
+  def create(userId: Long, subId: Long, subName: String) = {
+    Logger.info("creating subscription for " + userId + " and " + subName)
+
     redisClients.withClient { client =>
-      client.sadd(s"subscriptions:${accountId}", subName)
+      // Add sub name to user's set of subscriptions
+      client.sadd(subscriptionsForUser(userId), subName)
+
+      // Add user ID to set of sub's subscribers
+      client.sadd(subscribersForSub(subId), userId)
     }
   }
 

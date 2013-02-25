@@ -16,6 +16,7 @@ import language.implicitConversions
 //import Database.threadLocalSession
 
 import models._
+import controllers.RedisClients
 
 sealed trait Permission
 case object Administrator extends Permission
@@ -27,9 +28,11 @@ case class Account(id: Option[Long] = None,
     			   name: String, 
     			   permission: Permission)
 
-object Account {
+object Account extends RedisKeys {
   
-  lazy val database = Database.forDataSource(DB.getDataSource())
+  def database = Database.forDataSource(DB.getDataSource())
+
+  lazy val redisClients = RedisClients.clientPool
 
   implicit val permissionTypeMapper = MappedTypeMapper.base[Permission, String](
     p => p match {
@@ -79,9 +82,14 @@ object Account {
     Query(AccountTable).filter(a => a.id === accountId && a.permission === (Administrator:Permission)).firstOption.isDefined
   }
 
-  def create(account: Account) = database.withSession { implicit db: Session =>
-    Logger.info(AccountTable.insertStatement)
-    AccountTable.forInsert returning AccountTable.id insert account.copy(password = BCrypt.hashpw(account.password, BCrypt.gensalt()))
+  def create(account: Account) = {
+    implicit val accountId = database.withSession { implicit db: Session =>
+      Logger.info(AccountTable.insertStatement)
+      AccountTable.forInsert returning AccountTable.id insert account.copy(password = BCrypt.hashpw(account.password, BCrypt.gensalt()))
+    }
+    redisClients.withClient { client =>
+      client.sunionstore(subscriptionsForUser, defaultSubscriptions)
+    }
   }
 
   def update(account: Account): Int = {
