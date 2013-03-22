@@ -1,0 +1,5 @@
+@(sub: Sub, items: Seq[(Item, auth.Account)])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
+
+@views.html.sub.main(sub)   {
+  @views.html.listOfLinks(items.map(i => (i._1, i._2, sub)), false)
+}

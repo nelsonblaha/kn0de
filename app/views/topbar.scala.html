@@ -9,16 +9,8 @@
       <a class="brand" href="@routes.Application.index()">kn0de</a>
       <ul class="nav">
         @userInfo.subscriptions.map { sub =>
-          <li @if(currentSub.map(_ == sub.name).getOrElse(false)) { class="active" }>
-            <a href="@routes.Subs.index(sub.name)">@sub.name</a>
-          </li>
-        }
-        @if(userInfo.subscriptions.size > 0 && userInfo.defaults.size > 0) {
-          <li class="divider divider-vertical"></li>
-        }
-        @userInfo.defaults.map { sub =>
-          <li @if(currentSub.map(_ == sub.name).getOrElse(false)) { class="active" }>
-            <a href="@routes.Subs.index(sub.name)">@sub.name</a>
+          <li @if(currentSub.map(_ == sub.subName).getOrElse(false)) { class="active" }>
+            <a href="@routes.Subs.index(sub.subName)">@sub.subName</a>
           </li>
         }
       </ul>

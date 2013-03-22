@@ -1,0 +1,8 @@
+@(items: Seq[(Item, auth.Account, Sub)], frontpage: Boolean)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo)
+
+<div class="span8" id="subLinks">
+  @items.map { case (item, postedBy, sub) =>
+    @views.html.link(item, sub, postedBy, frontpage)
+  }
+</div>
+

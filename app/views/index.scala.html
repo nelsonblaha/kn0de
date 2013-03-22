@@ -1,11 +1,11 @@
-@(message: String)(links: Seq[(Item, auth.Account)])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
+@(message: String)(links: Seq[(Item, Sub, auth.Account)])(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
  
 @main(title = "kn0de", currentSub = None) {
 
   <div id="content" class="span8">
     <ol>
-      @links.map { case (item, account) =>
-        @views.html.link(item, account, true)
+      @links.map { case (item, sub, account) =>
+        @views.html.link(item, sub, account, frontpage = true)
       }
     </ol>
   </div>

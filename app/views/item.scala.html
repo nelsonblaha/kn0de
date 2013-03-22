@@ -1,8 +1,7 @@
 @(sub: Sub, item: Item, postedBy: auth.Account)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
 
-@main(title = item.title, currentSub = Some(sub.name)) {
-
-  <div class="row">
+@views.html.sub.main(sub) {
+  <div class="span8" id="item">
 
     <h3><a href="@item.link.getOrElse("#")">@item.title</a></h3>
 
@@ -11,5 +10,4 @@
     <small>posted by @postedBy.name at @item.postedAt</small>
 
   </div>
-
 }

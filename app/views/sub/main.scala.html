@@ -1,0 +1,20 @@
+@(sub: Sub)(content: Html)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo, flash: Flash)
+
+@views.html.main(title = sub.name, currentSub = Some(sub.name))   {
+  <div class="row">
+    <div class="span8 sub-heading">
+      <h5>
+        @sub.name
+      </h5>
+    </div>
+  </div>
+
+  <div class="row">
+    @content
+
+    @views.html.sub.sidebar(sub, 0)
+    
+  </div>
+
+}
+

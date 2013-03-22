@@ -19,9 +19,8 @@ import jp.t2v.lab.play20.auth._
 object Application extends AuthController with LoginLogout with Header {
 
   def index = MaybeAuthenticated { implicit maybeUser => implicit request =>
-    val frontpageItems = Nil
 
-    Ok(views.html.index("Your new application is ready.")(frontpageItems))
+    Ok(views.html.index("Your new application is ready.")(Nil))
   }
 
   /**
@@ -163,10 +162,12 @@ trait AuthController extends Controller with Auth with AuthConfigImpl {
   */
 
   private def maybeAuthenticated(f: Option[Account] => Request[AnyContent] => Result): Action[AnyContent] = {
+    /*
     def userOrLogin(req: Request[AnyContent]) = restoreUser(req) match {
       case Some(user) => Right(user)
       case _ => Left(Application.loginForm)
     }
+    */
 
     Action(BodyParsers.parse.anyContent)(req => f(restoreUser(req))(req))
   }

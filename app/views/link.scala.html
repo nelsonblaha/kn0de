@@ -1,28 +1,32 @@
-@(item: Item, poster: auth.Account, frontpage: Boolean)
+@(item: Item, sub: Sub, poster: auth.Account, frontpage: Boolean)
 
-<li class="item span7">
-  <div class="row">
+<div class="row sub-link">
   <div class="span7">
     <div class="row">
       <div class="span7 title">
-        @item.title
+        <a href="@routes.Subs.singleItem(sub.name, item.id.get)">
+          @item.title
+        </a>
       </div>
     </div>
 
     <div class="row">
       <div class="span7 info">
-        posted by @poster.name on @item.postedAt 
+        <small>
+          posted by @poster.name on @{item.postedAt} @{ if(frontpage) "to " + sub.name }
+        </small>
       </div>
     </div>
 
     <div class="row">
-      <ul class="span6 offset1 inline vote-options">
-        <li>interesting</li>
-        <li>informative</li>
-        <li>funny</li>
-        <li>useless</li>
-      </ul>
+      <div class="span7">
+        <ul class="inline vote-options">
+          <li><small>interesting</small></li>
+          <li><small>informative</small></li>
+          <li><small>funny</small></li>
+          <li><small>useless</small></li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
-</li>

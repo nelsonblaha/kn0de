@@ -60,3 +60,10 @@ object Item {
 
 
 }
+
+case class Link(item: Item,
+                numComments: Int,
+                scores: Scores)
+
+case class Scores(score: Int)
+

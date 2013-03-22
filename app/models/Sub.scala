@@ -13,25 +13,21 @@ import scala.slick.driver.PostgresDriver.simple._
 import java.util.Calendar
 import java.sql.Date
 
-import com.redis._
-import controllers.RedisClients
-
 import auth._
 
 case class Sub(id: Option[Long] = None,
                name: String,
                description: String,
                createdBy: Long, // user id
-               createdAt: Date = new java.sql.Date(Calendar.getInstance().getTime().getTime()),
+               createdAt: Date = new Date(Calendar.getInstance().getTime().getTime()),
                totalMembers: Int = 0)
 
 case class Moderator(accountId: Long,
 					 subId: Long)                       
 
-object Sub extends RedisKeys {
+object Sub {
   
   def database = Database.forDataSource(DB.getDataSource())
-  lazy val redisClients = RedisClients.clientPool
 
   val SubTable = new Table[Sub]("sub") {
     def id = column[Long]("sub_id", O.PrimaryKey, O.AutoInc)
@@ -60,19 +56,6 @@ object Sub extends RedisKeys {
       SubTable.forInsert returning SubTable.id insert sub
     }
 
-    redisClients.withClient { client =>
-      // Set up the nextItemId counter for the new sub
-      client.set(nextItemId,0)
-
-      // Set the sub hash
-      client.hmset(subHash, Map(
-        SubHash.subName -> sub.name,
-        SubHash.subDescription -> sub.description,
-        SubHash.createdBy -> sub.createdBy,
-        SubHash.createdAt -> sub.createdAt
-      ))
-    }
-
     // Create the initial subscription for the user creating the sub
     Subscription.create(sub.createdBy, subId, sub.name)
   }
@@ -90,36 +73,39 @@ object Sub extends RedisKeys {
 
 }
 
-case class Subscription(name: String)
+case class Subscription(accountId: Long,
+                        subId: Long,
+                        subName: String,
+                        createdDate: Date = new java.sql.Date(Calendar.getInstance().getTime().getTime()))
 
-object Subscription extends RedisKeys  {
-  
-  lazy val redisClients = RedisClients.clientPool
+object Subscription {
 
-  def findByAccount(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
-    implicit val userId = maybeUser.flatMap { _.id } getOrElse -1L
-    client.smembers(subscriptionsForUser) map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]() 
+  def database = Database.forDataSource(DB.getDataSource())
+
+  val SubscriptionTable = new Table[Subscription]("subscription") {
+    def accountId = column[Long]("account_id")
+    def subId = column[Long]("sub_id")
+    def subName = column[String]("sub_name")
+    def createdDate = column[Date]("created_date")
+    def * = accountId ~ subId ~ subName ~ createdDate <> (Subscription.apply _, Subscription.unapply _)
   }
 
-  def defaults(maybeUser: Option[Account]): Set[Subscription] = redisClients.withClient { client =>
-    // Deprecated
-    // Going to replace this with setting defaults at user-creation rather than dynamically
-    // Auto-sub users to defaults, allow them to unsub later
-    val userId = maybeUser.flatMap { _.id } getOrElse -1
-    client.sdiff("subscriptions:1", s"subscriptions:$userId")
-      .map { _.flatten.map { Subscription(_) } }  getOrElse Set[Subscription]()
+  def findByAccount(maybeUser: Option[Account]): List[Subscription] = database.withSession { implicit db: Session =>
+    val accountId = for {
+      account <- maybeUser
+      accountId <- account.id
+    } yield accountId
+
+    accountId match {
+      case Some(id) => Query(SubscriptionTable).filter(s => s.accountId === accountId).sortBy(_.createdDate.desc).list
+      case _ => List[Subscription]()
+    }
   }
 
-  def create(userId: Long, subId: Long, subName: String) = {
+  def create(userId: Long, subId: Long, subName: String) = database.withSession { implicit db: Session =>
     Logger.info("creating subscription for " + userId + " and " + subName)
 
-    redisClients.withClient { client =>
-      // Add sub name to user's set of subscriptions
-      client.sadd(subscriptionsForUser(userId), subName)
-
-      // Add user ID to set of sub's subscribers
-      client.sadd(subscribersForSub(subId), userId)
-    }
+    SubscriptionTable insert Subscription(userId, subId, subName)
   }
 
 }

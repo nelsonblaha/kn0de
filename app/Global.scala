@@ -27,14 +27,14 @@ object InitialData {
 
   def dbSetup = {
     Logger.info("Creating DDLs...")
-    lazy val database = Database.forDataSource(DB.getDataSource())
+    def database = Database.forDataSource(DB.getDataSource())
 
     database.withSession { implicit db: Session => 
       val ddl = 
         Account.AccountTable.ddl ++
         Item.ItemTable.ddl ++
         Sub.SubTable.ddl ++
-        //Subscription.SubscriptionTable.ddl ++
+        Subscription.SubscriptionTable.ddl ++
         Moderator.ModeratorTable.ddl
 
         Logger.info(ddl.createStatements.reduceLeft(_ + "\n" + _))
@@ -68,21 +68,21 @@ object InitialData {
         Sub(None, "Misc", "A sub about everything", 2)
       ).foreach(Sub.create)
 
-      Subscription.create(1, "AskScience")
-      Subscription.create(1, "Politics")
-      Subscription.create(1, "Technology")
-      Subscription.create(1, "Funny")
-      Subscription.create(1, "Stuff")
-      Subscription.create(1, "Misc")
-      Subscription.create(2, "AskScience")
-      Subscription.create(2, "Technology")
-      Subscription.create(3, "Funny")
-      Subscription.create(3, "AskScience")
-      Subscription.create(3, "Stuff")
-      Subscription.create(3, "Misc")
-      Subscription.create(4, "AskScience")
-      Subscription.create(4, "Politics")
-      Subscription.create(4, "Stuff")
+      Subscription.create(1, 1, "AskScience")
+      Subscription.create(1, 2, "Politics")
+      Subscription.create(1, 3, "Technology")
+      Subscription.create(1, 4, "Funny")
+      Subscription.create(1, 5, "Stuff")
+      Subscription.create(1, 6, "Misc")
+      Subscription.create(2, 1, "AskScience")
+      Subscription.create(2, 2, "Technology")
+      Subscription.create(3, 4, "Funny")
+      Subscription.create(3, 1, "AskScience")
+      Subscription.create(3, 5, "Stuff")
+      Subscription.create(3, 6, "Misc")
+      Subscription.create(4, 1, "AskScience")
+      Subscription.create(4, 2, "Politics")
+      Subscription.create(4, 5, "Stuff")
 
     }
 

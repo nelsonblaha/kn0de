@@ -15,8 +15,7 @@ import models.auth._
 
 case class UserInfo(
   maybeUser: Option[Account],
-  defaults: Set[Subscription],
-  subscriptions: Set[Subscription],
+  subscriptions: List[Subscription],
   loginForm: Form[Option[Account]]
 )
 
@@ -25,7 +24,6 @@ trait Header {
   implicit def withUserInfoOptionalUser(implicit maybeUser: Option[Account]): UserInfo = {
     UserInfo(
       maybeUser,
-      Subscription.defaults(maybeUser),
       Subscription.findByAccount(maybeUser),
       loginForm
     )
@@ -34,7 +32,6 @@ trait Header {
   implicit def withUserInfo(implicit user: Account): UserInfo = {
     UserInfo(
       Some(user),
-      Subscription.defaults(Some(user)),
       Subscription.findByAccount(Some(user)),
       loginForm
     )

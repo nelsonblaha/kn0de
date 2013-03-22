@@ -1,0 +1,17 @@
+@(sub: Sub, numItems: Long)(implicit request: play.api.mvc.Request[AnyContent], userInfo: UserInfo)
+
+<div class="span4">
+  <p class="lead">
+    @sub.description
+  </p>
+
+  <p>
+    @numItems links submitted
+  </p>
+
+  <p>
+    @sub.totalMembers subscribers
+  </p>
+  <a class="btn btn-primary" href="@routes.Subs.newItem(sub.name)">Submit item</a>
+</div>
+

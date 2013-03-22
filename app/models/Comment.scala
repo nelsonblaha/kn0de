@@ -8,66 +8,53 @@ import play.api.libs.json.Json
 
 import play.api.Logger
 
-import anorm._
-import anorm.SqlParser._
+import scala.slick.driver.PostgresDriver.simple._
 
-import java.util.Date
+import java.sql.Date 
+
+import java.util.Calendar
 
 import auth._
 
-case class Comment(id: Pk[Long] = NotAssigned,
-                   parentId: Pk[Long],
-                   itemId: Pk[Long],
+case class Comment(id: Option[Long] = None,
+                   parentId: Option[Long] = None,
+                   itemId: Long,
                    content: String,
                    postedBy: Long, // user id
-                   postedAt: Date,
-                   score: Double)
+                   postedAt: Date = new Date(Calendar.getInstance().getTime().getTime()))
 
 object Comment {
 
-  val simple = {
-    get[Pk[Long]]("comment.comment_id") ~
-    get[Pk[Long]]("comment.parent_id") ~
-    get[Pk[Long]]("comment.item_id") ~
-    get[String]("comment.content") ~
-    get[Long]("comment.posted_by") ~
-    get[Date]("comment.posted_at") ~
-    get[Double]("comment.score") map {
-      case id~parentId~itemId~content~postedBy~postedAt~score =>
-      Comment(id, parentId, itemId, content, postedBy, postedAt, score)
-    }
+  def database = Database.forDataSource(DB.getDataSource())
+
+  val CommentTable = new Table[Comment]("comment") {
+    def id = column[Long]("comment_id", O.PrimaryKey, O.AutoInc)
+    def parentId = column[Long]("parent_id", O.PrimaryKey)
+    def itemId = column[Long]("item_id", O.PrimaryKey)
+    def content = column[String]("content")
+    def postedBy = column[Long]("posted_by")
+    def postedAt = column[Date]("posted_at")
+    def * = id.? ~ parentId.? ~ itemId ~ content ~ postedBy ~ postedAt <> (Comment.apply _, Comment.unapply _)
+    def topLevel = itemId ~ content ~ postedBy ~ postedAt <>
+      ({ c => Comment(None, None, c._1, c._2, c._3, c._4)}, { (c: Comment) => Some((c.itemId, c.content, c.postedBy, c.postedAt)) })
+    def withParent = parentId ~ itemId ~ content ~ postedBy ~ postedAt <>
+      ({ c => Comment(None, Some(c._1), c._2, c._3, c._4, c._5)}, { (c: Comment) => Some((c.parentId.get, c.itemId, c.content, c.postedBy, c.postedAt)) })
   }
 
-  def findById(id: Long): Option[Comment] = {
-    DB.withConnection { implicit connection =>
-      SQL("select * from comment where comment_id = {id}").on(
-        'id -> id
-      ).as(Comment.simple.singleOpt)
-    }
+  def findById(id: Long): Option[Comment] = database.withSession { implicit db: Session =>
+    Query(CommentTable).filter(c => c.id === id).firstOption
   }
 
-  def findByParent(parentId: Long): Seq[Comment] = {
-    DB.withConnection { implicit connection =>
-      SQL("select * from comment where parent_id = {parent_id}").on(
-        'parent_id -> parentId
-      ).as(Comment.simple *)
-    }
+  def findByParent(parentId: Long): Seq[Comment] = database.withSession { implicit db: Session =>
+    Query(CommentTable).filter(c => c.parentId === parentId).list
   }
 
-  def findByItem(itemId: Long): Seq[Comment] = {
-    DB.withConnection { implicit connection =>
-      SQL("select * from comment where item_id = {item_id}").on(
-        'item_id -> itemId
-      ).as(Comment.simple *)
-    }
+  def findByItem(itemId: Long): Seq[Comment] = database.withSession { implicit db: Session =>
+    Query(CommentTable).filter(c => c.itemId === itemId).list
   }
 
-  def findByAccount(accountId: Long): Seq[Comment] = {
-    DB.withConnection { implicit connection =>
-      SQL("select * from comment where posted_by = {account_id}").on(
-        'account_id -> accountId
-      ).as(Comment.simple *)
-    }
+  def findByAccount(accountId: Long): Seq[Comment] = database.withSession { implicit db: Session =>
+    Query(CommentTable).filter(c => c.postedBy === accountId).list
   }
 
 
